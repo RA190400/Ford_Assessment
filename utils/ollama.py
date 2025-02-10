@@ -33,7 +33,7 @@ def create_client(host: str):
         - Exception: If there is an error creating the client.
 
     Notes:
-        This function creates a client for interacting with the Ollama API using the `ollama` library. It takes a single parameter, `host`, which should be the hostname or IP address of the Ollama server. The function returns an instance of the Ollama client, or raises an exception if there is an error creating the client.
+        This function creates a client for interacting with the Ollama API using the ollama library. It takes a single parameter, host, which should be the hostname or IP address of the Ollama server. The function returns an instance of the Ollama client, or raises an exception if there is an error creating the client.
     """
     try:
         client = ollama.Client(host=host)
@@ -49,7 +49,6 @@ def create_client(host: str):
 # Get Models
 #
 ###################################
-
 
 def get_models():
     try:
@@ -71,7 +70,7 @@ def get_models():
             return []
 
         # Extract model names from the response
-        models = [model.model for model in data.models] 
+        models = [model.model for model in data.models]  # Access the 'models' attribute
 
         st.session_state["ollama_models"] = models
 
@@ -85,6 +84,9 @@ def get_models():
     except Exception as err:
         logs.log.error(f"Failed to retrieve Ollama model list: {err}")
         return []
+
+
+
 
 
 ###################################
@@ -126,7 +128,7 @@ def create_ollama_llm(model: str, base_url: str, system_prompt: str = None, requ
 
 def chat(prompt: str):
     """
-    Initiates a chat with the Ollama language model using the provided parameters.
+    Initiates a chat with the Ollama language model, enforcing step-by-step explanations.
 
     Parameters:
         - prompt (str): The starting prompt for the conversation.
@@ -140,12 +142,24 @@ def chat(prompt: str):
             st.session_state["selected_model"],
             st.session_state["ollama_endpoint"],
         )
-        stream = llm.stream_complete(prompt)
+
+        # Step-by-step solution prompt
+        step_by_step_prompt = f"""
+        You are a math tutor. For the query below, provide a step-by-step explanation:
+        1. Identify the problem type (e.g., derivative, integral, equation solving).
+        2. Break down the solution into clear, logical steps.
+        3. Conclude with the final solution.
+
+        Query: {prompt}
+        """
+
+        stream = llm.stream_complete(step_by_step_prompt)
         for chunk in stream:
             yield chunk.delta
     except Exception as err:
         logs.log.error(f"Ollama chat stream error: {err}")
         return
+
 
 
 ###################################
@@ -154,10 +168,9 @@ def chat(prompt: str):
 #
 ###################################
 
-
 def context_chat(prompt: str, query_engine: RetrieverQueryEngine):
     """
-    Initiates a chat with context using the Llama-Index query_engine.
+    Initiates a chat with context using the Llama-Index query_engine and ensures step-by-step explanations.
 
     Parameters:
         - prompt (str): The starting prompt for the conversation.
@@ -165,28 +178,24 @@ def context_chat(prompt: str, query_engine: RetrieverQueryEngine):
 
     Yields:
         - str: Successive chunks of conversation from the Llama-Index model with context.
-
-    Raises:
-        - Exception: If there is an error retrieving answers from the Llama-Index model.
-
-    Notes:
-        This function initiates a chat with context using the Llama-Index language model and index.
-
-        It takes two parameters, `prompt` and `query_engine`, which should be the starting prompt for the conversation and the Llama-Index query engine to use for retrieving answers, respectively.
-
-        The function returns an iterable yielding successive chunks of conversation from the Llama-Index index with context.
-
-        If there is an error retrieving answers from the Llama-Index instance, the function raises an exception.
-
-    Side Effects:
-        - The chat conversation is generated and returned as successive chunks of text.
     """
-
     try:
-        stream = query_engine.query(prompt)
+        # Step-by-step solution prompt
+        step_by_step_prompt = f"""
+        You are a math tutor. For the query below, provide a step-by-step explanation:
+        1. Identify the problem type (e.g., derivative, integral, equation solving).
+        2. Break down the solution into clear, logical steps.
+        3. Conclude with the final solution.
+
+        Query: {prompt}
+        """
+
+        # Query the engine with the structured prompt
+        stream = query_engine.query(step_by_step_prompt)
         for text in stream.response_gen:
-            # print(str(text), end="", flush=True)
             yield str(text)
     except Exception as err:
         logs.log.error(f"Ollama chat stream error: {err}")
         return
+
+
