@@ -1,9 +1,9 @@
 import os
-
+import re
 import streamlit as st
-
+import sympy
 import utils.logs as logs
-
+from sympy import SympifyError
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 # This is not used but required by llama-index and must be set FIRST
@@ -69,39 +69,53 @@ def setup_embedding_model(
 # Load Documents
 #
 ###################################
-
-
-def load_documents(data_dir: str):
+def extract_math_expressions(text):
     """
-    Loads documents from a directory of files.
+    Extracts LaTeX-style math expressions from a given text.
 
     Args:
-        data_dir (str): The path to the directory containing the documents to be loaded.
+        text (str): The document text.
 
     Returns:
-        A list of documents, where each document is a string representing the content of the corresponding file.
+        list: A list of extracted math expressions.
+    """
+    try:
+        math_expressions = re.findall(r'\$(.*?)\$', text)  # Extracts LaTeX expressions
+        sympy_expressions = []
+        for expr in math_expressions:
+            try:
+                sympy_expressions.append(sympy.sympify(expr))
+            except SympifyError as err:
+                logs.log.warning(f"[extract_math_expressions] Sympy Error for expression '{expr}': {err}")
+        return sympy_expressions
+    except Exception as err:
+        logs.log.error(f"[extract_math_expressions] Error extracting math expressions: {err}")
+        return []
+def load_documents(data_dir: str):
+    """
+    Loads documents from a directory and extracts LaTeX math expressions.
 
-    Raises:
-        Exception: If there is an error creating the data index.
+    Args:
+        data_dir (str): Directory containing the documents.
 
-    Notes:
-        The `data_dir` parameter should be a path to a directory containing files that represent the documents to be loaded. The function will iterate over all files in the directory, and load their contents into a list of strings.
+    Returns:
+        A list of dictionaries, each containing 'text' (document content) and 'math' (extracted formulas).
     """
     try:
         files = SimpleDirectoryReader(input_dir=data_dir, recursive=True)
-        documents = files.load_data(files)
-        logs.log.info(f"Loaded {len(documents):,} documents from files")
-        return documents
+        documents = files.load_data()
+
+        indexed_data = []
+        for doc in documents:
+            text = doc.text
+            math_expressions = extract_math_expressions(text)
+            indexed_data.append({"text": text, "math": math_expressions})  
+
+        logs.log.info(f"[load_documents] Loaded {len(documents):,} documents with extracted math formulas.")
+        return indexed_data
     except Exception as err:
-        logs.log.error(f"Error creating data index: {err}")
-        raise Exception(f"Error creating data index: {err}")
-    finally:
-        for file in os.scandir(data_dir):
-            if file.is_file() and not file.name.startswith(
-                ".gitkeep"
-            ):  # TODO: Confirm syntax here
-                os.remove(file.path)
-        logs.log.info(f"Document loading complete; removing local file(s)")
+        logs.log.error(f"[load_documents] Error loading documents: {err}")
+        raise Exception(f"Error loading documents: {err}")
 
 
 ###################################
