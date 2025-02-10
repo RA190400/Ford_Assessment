@@ -5,8 +5,10 @@ import streamlit as st
 
 import utils.logs as logs
 
-# This is not used but required by llama-index and must be imported FIRST
-os.environ["OPENAI_API_KEY"] = "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"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Load from env variable
+
+if not OPENAI_API_KEY:
+    raise ValueError("Missing OpenAI API Key! Set OPENAI_API_KEY in your environment.")
 
 from llama_index.llms.ollama import Ollama
 from llama_index.core import Settings
@@ -145,10 +147,11 @@ def chat(prompt: str):
 
         # Step-by-step solution prompt
         step_by_step_prompt = f"""
-        You are a math tutor. For the query below, provide a step-by-step explanation:
-        1. Identify the problem type (e.g., derivative, integral, equation solving).
-        2. Break down the solution into clear, logical steps.
-        3. Conclude with the final solution.
+        You are a math tutor providing structured, step-by-step solutions. For the given query:
+        1.Identify the problem type (e.g., derivative, integral, proof).
+        2.Break it down logically with clear steps and justifications.
+        3.Apply theorems/formulas where needed.
+        4.Conclude with the final answer and verification if applicable.
 
         Query: {prompt}
         """
@@ -182,10 +185,11 @@ def context_chat(prompt: str, query_engine: RetrieverQueryEngine):
     try:
         # Step-by-step solution prompt
         step_by_step_prompt = f"""
-        You are a math tutor. For the query below, provide a step-by-step explanation:
-        1. Identify the problem type (e.g., derivative, integral, equation solving).
-        2. Break down the solution into clear, logical steps.
-        3. Conclude with the final solution.
+        You are a math tutor providing structured, step-by-step solutions. For the given query:
+        1.Identify the problem type (e.g., derivative, integral, proof).
+        2.Break it down logically with clear steps and justifications.
+        3.Apply theorems/formulas where needed.
+        4.Conclude with the final answer and verification if applicable.
 
         Query: {prompt}
         """
