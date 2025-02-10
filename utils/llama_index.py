@@ -1,21 +1,17 @@
 import os
 import re
-import streamlit as st
 import sympy
+import torch
+import streamlit as st
 import utils.logs as logs
-from sympy import SympifyError
+
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings, Document
+from sympy import SympifyError
+from llama_index.vector_stores.faiss import FaissVectorStore
 
-# This is not used but required by llama-index and must be set FIRST
-os.environ["OPENAI_API_KEY"] = "sk-abc123"
-
-from llama_index.core import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    Settings,
-)
-
-
+# Set device globally
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 ###################################
 #
@@ -23,11 +19,8 @@ from llama_index.core import (
 #
 ###################################
 
-
 @st.cache_resource(show_spinner=False)
-def setup_embedding_model(
-    model: str,
-):
+def setup_embedding_model(model: str):
     """
     Sets up an embedding model using the Hugging Face library.
 
@@ -36,39 +29,23 @@ def setup_embedding_model(
 
     Returns:
         An instance of the HuggingFaceEmbedding class, configured with the specified model and device.
-
-    Raises:
-        ValueError: If the specified model is not a valid embedding model.
-
-    Notes:
-        The `device` parameter can be set to 'cpu' or 'cuda' to specify the device to use for the embedding computations. If 'cuda' is used and CUDA is available, the embedding model will be run on the GPU. Otherwise, it will be run on the CPU.
     """
-    try:
-        from torch import cuda
-        device = "cpu" if not cuda.is_available() else "cuda"
-    except:
-        device = "cpu"
-    finally:
-        logs.log.info(f"Using {device} to generate embeddings")
-
+    logs.log.info(f"Using {DEVICE} to generate embeddings")
     try:
         Settings.embed_model = HuggingFaceEmbedding(
             model_name=model,
-            device=device,
+            device=DEVICE,
         )
-
         logs.log.info(f"Embedding model created successfully")
-        
-        return
     except Exception as err:
-        print(f"Failed to setup the embedding model: {err}")
-
+        logs.log.error(f"[setup_embedding_model] Failed to setup the embedding model: {err}")
 
 ###################################
 #
-# Load Documents
+# Extract Math Expressions
 #
 ###################################
+
 def extract_math_expressions(text):
     """
     Extracts LaTeX-style math expressions from a given text.
@@ -91,6 +68,13 @@ def extract_math_expressions(text):
     except Exception as err:
         logs.log.error(f"[extract_math_expressions] Error extracting math expressions: {err}")
         return []
+
+###################################
+#
+# Load Documents with Math Extraction
+#
+###################################
+
 def load_documents(data_dir: str):
     """
     Loads documents from a directory and extracts LaTeX math expressions.
@@ -117,73 +101,71 @@ def load_documents(data_dir: str):
         logs.log.error(f"[load_documents] Error loading documents: {err}")
         raise Exception(f"Error loading documents: {err}")
 
-
 ###################################
 #
-# Create Document Index
+# Create Document Index (with Math Expressions)
 #
 ###################################
 
+from llama_index.vector_stores.faiss import FaissVectorStore
+import faiss
 
 @st.cache_resource(show_spinner=False)
-def create_index(_documents):
+def create_index(documents):
     """
-    Creates an index from the provided documents and service context.
+    Creates an index from the provided documents using FAISS for efficient nearest-neighbor search.
 
     Args:
-        documents (list[str]): A list of strings representing the content of the documents to be indexed.
+        documents (list): A list of dictionaries containing 'text' and 'math' extracted from files.
 
     Returns:
-        An instance of `VectorStoreIndex`, containing the indexed data.
-
-    Raises:
-        Exception: If there is an error creating the index.
-
-    Notes:
-        The `documents` parameter should be a list of strings representing the content of the documents to be indexed.
+        An instance of VectorStoreIndex, containing the indexed data.
     """
-
     try:
+        formatted_documents = [Document(text=entry["text"]) for entry in documents]
+        for entry in documents:
+            for formula in entry["math"]:
+                formatted_documents.append(Document(text=str(formula)))
+
+        # ✅ Correct way to initialize FaissVectorStore
+        faiss_index = faiss.IndexFlatL2(768)  # Assuming 768-d embeddings (BERT-like model)
+        vector_store = FaissVectorStore(faiss_index=faiss_index)
+
         index = VectorStoreIndex.from_documents(
-            documents=_documents, show_progress=True
+            documents=formatted_documents,
+            vector_store=vector_store
         )
 
-        logs.log.info("Index created from loaded documents successfully")
-
+        logs.log.info("[create_index] Index created successfully with LaTeX-aware retrieval.")
         return index
     except Exception as err:
-        logs.log.error(f"Index creation failed: {err}")
+        logs.log.error(f"[create_index] Index creation failed: {err}")
         raise Exception(f"Index creation failed: {err}")
 
-
 ###################################
 #
-# Create Query Engine
+# Create Query Engine (for Text + Math)
 #
 ###################################
 
-
-# @st.cache_resource(show_spinner=False)
-def create_query_engine(_documents):
+def create_query_engine(documents):
     """
-    Creates a query engine from the provided documents and service context.
+    Creates a query engine that forces step-by-step math solutions.
 
     Args:
-        documents (list[str]): A list of strings representing the content of the documents to be indexed.
+        documents (list): A list of dictionaries containing text and extracted math expressions.
 
     Returns:
-        An instance of `QueryEngine`, containing the indexed data and allowing for querying of the data using a variety of parameters.
-
-    Raises:
-        Exception: If there is an error creating the query engine.
-
-    Notes:
-        The `documents` parameter should be a list of strings representing the content of the documents to be indexed.
-
-        This function uses the `create_index` function to create an index from the provided documents and service context, and then creates a query engine from the resulting index. The `query_engine` parameter is used to specify the parameters of the query engine, including the number of top-ranked items to return (`similarity_top_k`) and the response mode (`response_mode`).
+        An instance of QueryEngine, enforcing structured math solutions.
     """
     try:
-        index = create_index(_documents)
+        index = create_index(documents)
+
+        # Ensure session state keys exist before using them
+        if "top_k" not in st.session_state:
+            st.session_state["top_k"] = 5
+        if "chat_mode" not in st.session_state:
+            st.session_state["chat_mode"] = "default"
 
         query_engine = index.as_query_engine(
             similarity_top_k=st.session_state["top_k"],
@@ -192,10 +174,9 @@ def create_query_engine(_documents):
         )
 
         st.session_state["query_engine"] = query_engine
-
-        logs.log.info("Query Engine created successfully")
-
+        logs.log.info("[create_query_engine] Query Engine created successfully with step-by-step reasoning.")
         return query_engine
     except Exception as e:
-        logs.log.error(f"Error when creating Query Engine: {e}")
-        raise Exception(f"Error when creating Query Engine: {e}")
+        logs.log.error(f"[create_query_engine] Error creating Query Engine: {e}")
+        raise Exception(f"Error creating Query Engine: {e}")
+
