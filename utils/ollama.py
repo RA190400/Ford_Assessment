@@ -6,7 +6,7 @@ import streamlit as st
 import utils.logs as logs
 
 # This is not used but required by llama-index and must be imported FIRST
-os.environ["OPENAI_API_KEY"] = "sk-abc123"
+os.environ["OPENAI_API_KEY"] = "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"
 
 from llama_index.llms.ollama import Ollama
 from llama_index.core import Settings

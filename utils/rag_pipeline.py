@@ -12,48 +12,14 @@ import utils.logs as logs
 
 
 def rag_pipeline(uploaded_files: list = None):
-    """
-    RAG pipeline for Llama-based chatbots.
-
-    Parameters:
-        - uploaded_files (list, optional): List of files to be processed.
-            If none are provided, the function will load files from the current working directory.
-
-    Yields:
-        - str: Successive chunks of conversation from the Ollama model with context.
-
-    Raises:
-        - Exception: If there is an error retrieving answers from the Ollama model or creating the service context.
-
-    Notes:
-        This function initiates a chat with context using the Llama-Index library and the Ollama language model. It takes one optional parameter, `uploaded_files`, which should be a list of files to be processed. If no files are provided, the function will load files from the current working directory. The function returns an iterable yielding successive chunks of conversation from the Ollama model with context. If there is an error retrieving answers from the Ollama model or creating the service context, the function raises an exception.
-
-    Context:
-        - logs.log: A logger for logging events related to this function.
-
-    Side Effects:
-        - Creates a service context using the provided Ollama model and embedding file.
-        - Loads documents from the current working directory or the provided list of files.
-        - Removes the loaded documents and any temporary files created during processing.
-    """
     error = None
-
-    #################################
-    # (OPTIONAL) Save Files to Disk #
-    #################################
 
     if uploaded_files is not None:
         for uploaded_file in uploaded_files:
             with st.spinner(f"Processing {uploaded_file.name}..."):
                 save_dir = os.getcwd() + "/data"
                 func.save_uploaded_file(uploaded_file, save_dir)
-
         st.caption("✔️ Files Uploaded")
-
-    ######################################
-    # Create Llama-Index service-context #
-    # to use local LLMs and embeddings   #
-    ######################################
 
     try:
         llm = ollama.create_ollama_llm(
@@ -63,18 +29,11 @@ def rag_pipeline(uploaded_files: list = None):
         )
         st.session_state["llm"] = llm
         st.caption("✔️ LLM Initialized")
-
-        # resp = llm.complete("Hello!")
-        # print(resp)
     except Exception as err:
         logs.log.error(f"Failed to setup LLM: {str(err)}")
         error = err
         st.exception(error)
         st.stop()
-
-    ####################################
-    # Determine embedding model to use #
-    ####################################
 
     embedding_model = st.session_state["embedding_model"]
     hf_embedding_model = None
@@ -87,6 +46,9 @@ def rag_pipeline(uploaded_files: list = None):
 
     if embedding_model == "Large (Salesforce/SFR-Embedding-Mistral)":
         hf_embedding_model = "Salesforce/SFR-Embedding-Mistral"
+
+    if embedding_model == "Math-Specific (allenai/mathbert)":
+        hf_embedding_model = "allenai/mathbert"
 
     if embedding_model == "Other":
         hf_embedding_model = st.session_state["other_embedding_model"]
@@ -102,11 +64,6 @@ def rag_pipeline(uploaded_files: list = None):
         st.exception(error)
         st.stop()
 
-    #######################################
-    # Load files from the data/ directory #
-    #######################################
-
-    # if documents already exists in state
     if (
         st.session_state["documents"] is not None
         and len(st.session_state["documents"]) > 0
@@ -125,10 +82,6 @@ def rag_pipeline(uploaded_files: list = None):
             st.exception(error)
             st.stop()
 
-    ###########################################
-    # Create an index from ingested documents #
-    ###########################################
-
     try:
         llama_index.create_query_engine(
             st.session_state["documents"],
@@ -139,10 +92,6 @@ def rag_pipeline(uploaded_files: list = None):
         error = err
         st.exception(error)
         st.stop()
-
-    #####################
-    # Remove data files #
-    #####################
 
     if len(st.session_state["file_list"]) > 0:
         try:
@@ -155,4 +104,5 @@ def rag_pipeline(uploaded_files: list = None):
             )
             pass
 
-    return error  # If no errors occurred, None is returned
+    return error
+  # If no errors occurred, None is returned

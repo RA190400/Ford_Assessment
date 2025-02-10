@@ -71,6 +71,7 @@ def settings():
             [
                 "Default (bge-large-en-v1.5)",
                 "Large (Salesforce/SFR-Embedding-Mistral)",
+                "Math-Specific (allenai/mathbert)",
                 "Other",
             ],
             key="embedding_model",
