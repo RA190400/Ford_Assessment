@@ -52,40 +52,36 @@ def create_client(host: str):
 
 
 def get_models():
-    """
-    Retrieves a list of available language models from the Ollama server.
-
-    Returns:
-        - models (list[str]): A list of available language model names.
-
-    Raises:
-        - Exception: If there is an error retrieving the list of models.
-
-    Notes:
-        This function retrieves a list of available language models from the Ollama server using the `ollama` library. It takes no parameters and returns a list of available language model names.
-
-        The function raises an exception if there is an error retrieving the list of models.
-
-    Side Effects:
-        - st.session_state["ollama_models"] is set to the list of available language models.
-    """
     try:
         chat_client = create_client(st.session_state["ollama_endpoint"])
+        if not chat_client:
+            logs.log.error("Ollama client could not be created.")
+            return []
+
+        # Get the list of models
         data = chat_client.list()
-        models = []
-        for model in data["models"]:
-            models.append(model["name"])
+
+        # Debugging: Check response structure
+        print(f"Raw API Response Type: {type(data)}")
+        print(f"Raw API Response: {data}")
+
+        # Ensure 'data' has the attribute 'models'
+        if not hasattr(data, "models"):
+            logs.log.error(f"Unexpected response format: {data}")
+            return []
+
+        # Extract model names from the response
+        models = [model.model for model in data.models] 
 
         st.session_state["ollama_models"] = models
 
-        if len(models) > 0:
-            logs.log.info("Ollama models loaded successfully")
+        if models:
+            logs.log.info(f"Ollama models loaded successfully: {models}")
         else:
-            logs.log.warn(
-                "Ollama did not return any models. Make sure to download some!"
-            )
+            logs.log.warning("Ollama did not return any models. Make sure to download some!")
 
         return models
+
     except Exception as err:
         logs.log.error(f"Failed to retrieve Ollama model list: {err}")
         return []
