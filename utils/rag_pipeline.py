@@ -47,9 +47,6 @@ def rag_pipeline(uploaded_files: list = None):
     if embedding_model == "Large (Salesforce/SFR-Embedding-Mistral)":
         hf_embedding_model = "Salesforce/SFR-Embedding-Mistral"
 
-    if embedding_model == "Math-Specific (allenai/mathbert)":
-        hf_embedding_model = "allenai/mathbert"
-
     if embedding_model == "Other":
         hf_embedding_model = st.session_state["other_embedding_model"]
 
