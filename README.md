@@ -183,4 +183,134 @@ Query: {prompt}
 """
 ```
 **💡 Benefit:** This makes my system **not just a search engine, but an actual math tutor**, helping users **understand concepts rather than just getting answers**.
+---
+
+# **📌 Usage Details for My Math API Endpoints**  
+
+This section explains **how to use my API endpoints**, including **sample requests, responses, and handling LaTeX-based math queries**.
+
+---
+
+## **1️⃣ Available API Endpoints**
+| **Endpoint** | **Method** | **Description** |
+|-------------|-----------|----------------|
+| `/api/upload-pdfs` | `POST` | Uploads **PDFs**, extracts text, and indexes them for retrieval. |
+| `/api/math-query` | `POST` | Processes **math queries**, retrieves relevant documents, and provides **step-by-step solutions**. |
+| `/api/models` | `GET` | Returns a list of **available Ollama models**. |
+
+---
+
+## **2️⃣ API Endpoint: Upload PDFs (`/api/upload-pdfs`)**
+### **📌 What This Does**
+- Accepts **one or more PDFs**.
+- Extracts **text** from the PDFs.
+- Indexes the extracted content for **semantic search**.
+
+### **📌 Sample Request**
+```bash
+curl -X 'POST' 'http://127.0.0.1:8000/api/upload-pdfs' \
+-H 'accept: application/json' \
+-F 'files=@math_book.pdf' \
+-F 'files=@calculus_notes.pdf'
+```
+
+### **📌 Expected Response**
+```json
+{
+    "message": "PDFs indexed successfully",
+    "document_count": 2
+}
+```
+
+---
+
+## **3️⃣ API Endpoint: Math Query (`/api/math-query`)**
+### **📌 What This Does**
+- **Understands and processes LaTeX expressions**.
+- **Retrieves relevant documents** using FAISS.
+- **Provides a structured, step-by-step solution**.
+
+### **📌 Sample Request (LaTeX Query)**
+```bash
+curl -X 'POST' 'http://127.0.0.1:8000/api/math-query' \
+-H 'accept: text/plain' \
+-H 'Content-Type: application/json' \
+-d '{"question": "Find the derivative of the function $f(x) = x^3 + 3x^2 - 5x + 7$."}'
+```
+
+### **📌 Expected Response**
+```json
+{
+    "answer": "1. Identify: This is a derivative problem.\n
+               2. Differentiate: d/dx (x^3 + 3x^2 - 5x + 7) = 3x^2 + 6x - 5\n
+               3. Conclusion: The derivative is f'(x) = 3x^2 + 6x - 5.",
+    "references": ["calculus_notes.pdf"]
+}
+```
+**💡 Key Features:**
+- **LaTeX expressions** (e.g., `$x^3 + 3x^2$`) are correctly parsed.
+- **Step-by-step explanation** is provided.
+- **Relevant references** from uploaded documents are included.
+
+---
+
+## **4️⃣ API Endpoint: List Available Models (`/api/models`)**
+### **📌 What This Does**
+- Returns a list of **available Ollama models** that can be used for processing queries.
+
+### **📌 Sample Request**
+```bash
+curl -X 'GET' 'http://127.0.0.1:8000/api/models'
+```
+
+### **📌 Expected Response**
+```json
+{
+  "models": ["qwen2-math:latest", "mistral:latest", "llama3:8b"]
+}
+```
+💡 **This helps you verify which models are available before making queries.**
+
+---
+
+## **5️⃣ Handling LaTeX-Based Queries**
+### **📌 How My API Supports LaTeX**
+- LaTeX expressions are **extracted from queries** before processing.
+- Responses are **formatted in LaTeX** for proper mathematical notation.
+- The system **converts LaTeX into a readable format** for Streamlit and API responses.
+
+### **📌 Example: Integral Query in LaTeX**
+#### **Query:**
+```json
+{
+    "question": "Evaluate the integral $I = \\int (2x^3 + 5x) dx$."
+}
+```
+#### **Response:**
+```json
+{
+    "answer": "1. Identify: This is an integral problem.\n
+               2. Apply integration: \\int (2x^3 + 5x) dx\n
+               3. Compute: (2/4)x^4 + (5/2)x^2 + C\n
+               4. Conclusion: The integral evaluates to $$ \\frac{1}{2}x^4 + \\frac{5}{2}x^2 + C $$"
+}
+```
+💡 **Output uses `$$...$$` for block LaTeX formatting** so that it displays correctly in UI tools like Streamlit.
+
+---
+
+## **✅ Summary of API Usage**
+| **Action** | **Endpoint** | **Method** | **Notes** |
+|------------|------------|------------|----------|
+| Upload PDFs | `/api/upload-pdfs` | `POST` | Extracts and indexes content from PDFs. |
+| Ask a Math Question | `/api/math-query` | `POST` | Retrieves documents and provides **step-by-step solutions** with LaTeX. |
+| List Available Models | `/api/models` | `GET` | Shows which **Ollama models** are available. |
+
+---
+
+## **🚀 Now You're Ready!**
+You can now:
+✔ Upload PDFs and **search mathematical content**  
+✔ Ask **LaTeX-based math queries**  
+✔ Get **step-by-step AI-generated solutions**  
 
