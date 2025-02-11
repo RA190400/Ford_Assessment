@@ -68,32 +68,6 @@ uvicorn src.api:app --reload
 
 ---
 
-## **6️Example API Requests**
-### **📌 Upload PDFs for Indexing**
-To extract text from PDFs and store it for retrieval:
-
-```bash
-curl -X 'POST' 'http://127.0.0.1:8000/api/upload-pdfs' \
--H 'accept: application/json' \
--F 'files=@sample.pdf'
-```
-
----
-
-### **📌 Ask a Math Question**
-#### **Example: Find the Derivative**
-```bash
-curl -X 'POST' 'http://127.0.0.1:8000/api/math-query' \
--H 'accept: text/plain' \
--H 'Content-Type: application/json' \
--d '{"question": "Find the derivative of the function $f(x) = x^3 + 3x^2 - 5x + 7$."}'
-```
-
-
-
-
-
-
 ## **📌 Math-Focused Enhancements**  
 
 I've built a **math-aware question-answering system** that integrates **LaTeX processing, FAISS-based retrieval, symbolic computation, and structured step-by-step solutions**. Here's how I implemented each enhancement:
