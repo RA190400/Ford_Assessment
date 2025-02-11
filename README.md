@@ -191,7 +191,7 @@ This section explains **how to use my API endpoints**, including **sample reques
 
 ---
 
-## ** Available API Endpoints**
+## **Available API Endpoints**
 | **Endpoint** | **Method** | **Description** |
 |-------------|-----------|----------------|
 | `/api/upload-pdfs` | `POST` | Uploads **PDFs**, extracts text, and indexes them for retrieval. |
@@ -199,7 +199,7 @@ This section explains **how to use my API endpoints**, including **sample reques
 | `/api/models` | `GET` | Returns a list of **available Ollama models**. |
 
 ---
-## ** Start the FastAPI Server**
+## **Start the FastAPI Server**
 Once everything is installed, navigate to the **project directory** and run:
 
 ```bash
@@ -211,10 +211,10 @@ If your API file is inside a folder (`src/`), modify the command:
 uvicorn src.api:app --reload
 ```
 
-💡 **If you get an import error (`Could not import module "api"`), ensure you're in the correct directory.**  
+💡 If you get an import error (`Could not import module "api"`), ensure you're in the correct directory.  
 ---
 
-## ** API Endpoint: Upload PDFs (`/api/upload-pdfs`)**
+## **API Endpoint: Upload PDFs (`/api/upload-pdfs`)**
 ### **📌 What This Does**
 - Accepts **one or more PDFs**.
 - Extracts **text** from the PDFs.
@@ -238,7 +238,7 @@ curl -X 'POST' 'http://127.0.0.1:8000/api/upload-pdfs' \
 
 ---
 
-## ** API Endpoint: Math Query (`/api/math-query`)**
+## **API Endpoint: Math Query (`/api/math-query`)**
 ### **📌 What This Does**
 - **Understands and processes LaTeX expressions**.
 - **Retrieves relevant documents** using FAISS.
@@ -252,7 +252,7 @@ curl -X 'POST' 'http://127.0.0.1:8000/api/math-query' \
 -d '{"question": "Find the derivative of the function $f(x) = x^3 + 3x^2 - 5x + 7$."}'
 ```
 
-### **📌 Expected Response**
+### **📌Expected Response**
 ```json
 {
     "answer": "1. Identify: This is a derivative problem.\n
@@ -268,7 +268,7 @@ curl -X 'POST' 'http://127.0.0.1:8000/api/math-query' \
 
 ---
 
-## ** API Endpoint: List Available Models (`/api/models`)**
+## **API Endpoint: List Available Models (`/api/models`)**
 ### **📌 What This Does**
 - Returns a list of **available Ollama models** that can be used for processing queries.
 
@@ -287,7 +287,7 @@ curl -X 'GET' 'http://127.0.0.1:8000/api/models'
 
 ---
 
-## ** Handling LaTeX-Based Queries**
+## **Handling LaTeX-Based Queries**
 ### **📌 How My API Supports LaTeX**
 - LaTeX expressions are **extracted from queries** before processing.
 - Responses are **formatted in LaTeX** for proper mathematical notation.
