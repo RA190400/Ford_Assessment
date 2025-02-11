@@ -16,8 +16,9 @@ pip install fastapi uvicorn \
     streamlit llama-index llama-index-llms-ollama \
     llama-index-vector-stores-faiss faiss-cpu llama-index-embeddings-huggingface
 
-```
 python -m spacy download en_core_web_sm
+
+```
 
 ---
 
