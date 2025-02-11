@@ -1,3 +1,100 @@
+# **📘 Installation & Setup Guide for My Math Query System**  
+
+This guide explains how to **install, set up, and configure** my **math-aware AI system** using **FastAPI, Ollama, FAISS, and LaTeX support**.  
+
+---
+
+## **1️⃣ Install Required Dependencies**  
+
+Before running the system, make sure you have **Python 3.9+** installed. Then, install all required dependencies using:
+
+```bash
+pip install fastapi uvicorn ollama faiss-cpu torch transformers spacy sentence-transformers pymupdf numpy
+```
+
+This installs:
+- **FastAPI & Uvicorn** → For running the API server.
+- **Ollama** → For LLM-based query processing.
+- **FAISS** → For fast, math-aware semantic search.
+- **Torch & Sentence Transformers** → For embeddings and AI models.
+- **SymPy** → For symbolic math processing.
+- **spaCy** → For theorem detection.
+- **PyMuPDF (`pymupdf`)** → For extracting text from PDFs.
+
+---
+
+## **2️⃣ Install & Configure Ollama**
+Ollama is used for **step-by-step math explanations**. To install it:
+
+1️⃣ Install **Ollama** (if not already installed):  
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+2️⃣ **Pull the Required Math Model:**  
+I use **`qwen2-math:latest`** as the primary model:
+```bash
+ollama pull qwen2-math:latest
+```
+---
+
+## **3️⃣ Set Up Environment Variables**
+Since my system requires an **OpenAI API Key** for some functions, you should store it securely:
+
+```bash
+export OPENAI_API_KEY="your-openai-api-key"
+```
+
+To make it permanent, add it to your **`.bashrc`** or **`.zshrc`**:
+```bash
+echo 'export OPENAI_API_KEY="your-openai-api-key"' >> ~/.bashrc
+source ~/.bashrc  # Apply changes
+```
+
+---
+
+## **4️⃣ Start the FastAPI Server**
+Once everything is installed, navigate to the **project directory** and run:
+
+```bash
+uvicorn api:app --reload
+```
+
+If your API file is inside a folder (`src/`), modify the command:
+```bash
+uvicorn src.api:app --reload
+```
+
+💡 **If you get an import error (`Could not import module "api"`), ensure you're in the correct directory.**  
+
+---
+
+## **6️Example API Requests**
+### **📌 Upload PDFs for Indexing**
+To extract text from PDFs and store it for retrieval:
+
+```bash
+curl -X 'POST' 'http://127.0.0.1:8000/api/upload-pdfs' \
+-H 'accept: application/json' \
+-F 'files=@sample.pdf'
+```
+
+---
+
+### **📌 Ask a Math Question**
+#### **Example: Find the Derivative**
+```bash
+curl -X 'POST' 'http://127.0.0.1:8000/api/math-query' \
+-H 'accept: text/plain' \
+-H 'Content-Type: application/json' \
+-d '{"question": "Find the derivative of the function $f(x) = x^3 + 3x^2 - 5x + 7$."}'
+```
+
+
+
+
+
+
 ## **📌 Math-Focused Enhancements**  
 
 I've built a **math-aware question-answering system** that integrates **LaTeX processing, FAISS-based retrieval, symbolic computation, and structured step-by-step solutions**. Here's how I implemented each enhancement:
