@@ -35,15 +35,21 @@ def chatbox():
         with st.chat_message("assistant"):
             with st.spinner("Processing..."):
                 response_generator = context_chat(prompt=prompt, query_engine=st.session_state["query_engine"])
-        
-        # Convert streamed response (generator) to a string
-        response_text = "".join(response_generator)
+                
+                response_text = ""  # Initialize empty response
+                response_container = st.empty()  # Create dynamic container for updates
+                
+                # Stream response incrementally
+                for chunk in response_generator:
+                    response_text += chunk  # Append each chunk
+                    formatted_text = format_latex_response(response_text)  # Format incrementally
+                    response_container.markdown(formatted_text, unsafe_allow_html=True)  # Update UI dynamically
 
-        # Format the response for LaTeX rendering
+        # Final formatted response
         formatted_response = format_latex_response(response_text)
 
-        # Display the formatted response
-        st.markdown(formatted_response, unsafe_allow_html=True)
+        # Ensure last update is properly formatted
+        response_container.markdown(formatted_response, unsafe_allow_html=True)
 
         # Add the final response to messages state
         st.session_state["messages"].append({"role": "assistant", "content": formatted_response})

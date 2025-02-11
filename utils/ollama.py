@@ -147,14 +147,28 @@ def chat(prompt: str):
 
         # Step-by-step solution prompt
         step_by_step_prompt = f"""
-        You are a math tutor providing structured, step-by-step solutions. For the given query:
-        1.Identify the problem type (e.g., derivative, integral, proof).
-        2.Break it down logically with clear steps and justifications.
-        3.Apply theorems/formulas where needed.
-        4.Conclude with the final answer and verification if applicable.
+        You are a math tutor providing structured, step-by-step solutions and explanations. Given the following query:
 
-        Query: {prompt}
-        """
+        1. Determine the Query Type:
+        - Identify whether the question requires **solving a problem** (e.g., derivative, integral, proof) 
+        or **explaining a concept** (e.g., theorem, definition, application).
+
+       2. Logical Breakdown:
+       - If solving a problem, provide **clear, step-by-step calculations** with justifications.
+      - If explaining a concept, provide a **structured explanation** with definitions, key properties, examples, 
+     and real-world applications.
+
+       3. Application of Theorems/Formulas:
+       - If solving a problem, apply the necessary **theorems, formulas, or identities**.
+       - If explaining a concept, reference relevant **mathematical principles** and their significance.
+
+        4. Final Answer & Summary:
+       - If solving a problem, present the **final result clearly**, with verification if necessary.
+        - If explaining a concept, provide a **concise summary** of key takeaways.
+
+Query: {prompt}
+"""
+
 
         stream = llm.stream_complete(step_by_step_prompt)
         for chunk in stream:
@@ -185,14 +199,27 @@ def context_chat(prompt: str, query_engine: RetrieverQueryEngine):
     try:
         # Step-by-step solution prompt
         step_by_step_prompt = f"""
-        You are a math tutor providing structured, step-by-step solutions. For the given query:
-        1.Identify the problem type (e.g., derivative, integral, proof).
-        2.Break it down logically with clear steps and justifications.
-        3.Apply theorems/formulas where needed.
-        4.Conclude with the final answer and verification if applicable.
+        You are a math tutor providing structured, step-by-step solutions and explanations. Given the following query:
 
-        Query: {prompt}
-        """
+        1. Determine the Query Type:
+        - Identify whether the question requires **solving a problem** (e.g., derivative, integral, proof) 
+         or **explaining a concept** (e.g., theorem, definition, application).
+
+        2. Logical Breakdown:
+        - If solving a problem, provide **clear, step-by-step calculations** with justifications.
+        - If explaining a concept, provide a **structured explanation** with definitions, key properties, examples, 
+     and real-world applications.
+
+        3. Application of Theorems/Formulas:
+        - If solving a problem, apply the necessary **theorems, formulas, or identities**.
+        - If explaining a concept, reference relevant **mathematical principles** and their significance.
+
+        4. Final Answer & Summary:
+        - If solving a problem, present the **final result clearly**, with verification if necessary.
+        - If explaining a concept, provide a **concise summary** of key takeaways.
+
+       Query: {prompt}
+"""
 
         # Query the engine with the structured prompt
         stream = query_engine.query(step_by_step_prompt)

@@ -78,38 +78,6 @@ def create_index(docs):
     faiss_index.add(embeddings)
     logger.info(f"FAISS index updated with {len(docs)} documents.")
 
-# def retrieve_documents(query, top_k=3, min_results=1, dynamic_threshold=0.3):
-#    # """Retrieves the most relevant documents using FAISS while ensuring at least one result is returned."""
-
-#     if faiss_index.ntotal == 0:
-#         logger.warning("FAISS index is empty. No documents available for retrieval.")
-#         return [], []
-
-#     query_embedding = np.array(embedding_model.get_text_embedding(query), dtype="float32").reshape(1, -1)
-
-#     if query_embedding.shape[1] != faiss_index.d:
-#         raise ValueError(f"Embedding dimension mismatch: FAISS expects {faiss_index.d}, got {query_embedding.shape[1]}")
-
-#     distances, indices = faiss_index.search(query_embedding, top_k)
-
-#     # Sort by similarity (lower distance = more relevant)
-#     sorted_results = sorted(zip(indices[0], distances[0]), key=lambda x: x[1])
-
-#     valid_indices = []
-#     for i, distance in sorted_results:
-#         if 0 <= i < len(documents) and distance < dynamic_threshold:
-#             valid_indices.append(i)
-
-#     # Ensure at least one result is returned if nothing meets the threshold
-#     if not valid_indices and sorted_results:
-#         logger.warning("No results met the threshold. Returning the best available match.")
-#         valid_indices.append(sorted_results[0][0])  # Return the best match
-
-#     relevant_docs = [documents[i].text for i in valid_indices]
-#     relevant_doc_names = list(set([doc_names[i] for i in valid_indices]))  # Remove duplicates
-
-#     return relevant_docs, relevant_doc_names
-
 
 # Function to retrieve relevant documents
 def retrieve_documents(query, top_k=3):
@@ -212,12 +180,26 @@ def chat_with_docs(prompt: str):
 
         # ✅ Step-by-Step Math Tutor Prompt
         step_by_step_prompt = (
-            "You are a math tutor providing structured, step-by-step solutions. For the given query:\n"
-            "1. Identify the problem type (e.g., derivative, integral, proof).\n"
-            "2. Break it down logically with clear steps and justifications.\n"
-            "3. Apply theorems/formulas where needed.\n"
-            "4. Conclude with the final answer and verification if applicable.\n\n"
-        )
+    "You are a math tutor providing structured, step-by-step solutions and explanations. Given a query:\n\n"
+
+    "1. **Determine the Query Type:**\n"
+    "   - Identify whether the question requires solving a problem (e.g., derivative, integral, proof) \n"
+    "     or explaining a concept (e.g., theorem, definition, application).\n\n"
+
+    "2. **Logical Breakdown:**\n"
+    "   - If solving a problem, break it down into **clear, step-by-step calculations** with justifications.\n"
+    "   - If explaining a concept, provide a **structured explanation** with definitions, properties, examples, \n"
+    "     and real-world applications.\n\n"
+
+    "3. **Application of Theorems/Formulas:**\n"
+    "   - If solving a problem, apply relevant **theorems, formulas, or identities**.\n"
+    "   - If explaining a concept, reference **key mathematical principles** and their applications.\n\n"
+
+    "4. **Final Answer & Summary:**\n"
+    "   - If solving a problem, present the **final result** clearly with verification if needed.\n"
+    "   - If explaining a concept, summarize the **key takeaways** in a concise, easy-to-understand manner."
+)
+
 
         if relevant_docs:
             # ✅ Case 1: Use retrieved documents as context
