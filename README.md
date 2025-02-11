@@ -4,7 +4,7 @@ This guide explains how to **install, set up, and configure** my **math-aware AI
 
 ---
 
-## **1️⃣ Install Required Dependencies**  
+## **Install Required Dependencies**  
 
 Before running the system, make sure you have **Python 3.9+** installed. Then, install all required dependencies using:
 
@@ -22,22 +22,22 @@ python -m spacy download en_core_web_sm
 
 ---
 
-## **2️⃣ Install & Configure Ollama**
+## **Install & Configure Ollama**
 Ollama is used for **step-by-step math explanations**. To install it:
 
-1️⃣ Install **Ollama** (if not already installed):  
+ Install **Ollama** (if not already installed):  
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-2️⃣ **Pull the Required Math Model:**  
+ **Pull the Required Math Model:**  
 I use **`qwen2-math:latest`** as the primary model:
 ```bash
 ollama pull qwen2-math:latest
 ```
 ---
 
-## **3️⃣ Set Up Environment Variables**
+## **Set Up Environment Variables**
 Since my system requires an **OpenAI API Key** for some functions, you should store it securely:
 
 ```bash
@@ -51,20 +51,15 @@ source ~/.bashrc  # Apply changes
 ```
 
 ---
+## **Start the Streamlit Frontend**  
+Once the API is running, **launch the UI using Streamlit**.
 
-## **4️⃣ Start the FastAPI Server**
-Once everything is installed, navigate to the **project directory** and run:
-
+### **📌 Command to Start Streamlit**
 ```bash
-uvicorn api:app --reload
+streamlit run main.py
 ```
+💡 **This starts the interactive web UI where users can input math queries and see results visually.**
 
-If your API file is inside a folder (`src/`), modify the command:
-```bash
-uvicorn src.api:app --reload
-```
-
-💡 **If you get an import error (`Could not import module "api"`), ensure you're in the correct directory.**  
 
 ---
 
