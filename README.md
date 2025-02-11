@@ -184,15 +184,3 @@ Query: {prompt}
 ```
 **💡 Benefit:** This makes my system **not just a search engine, but an actual math tutor**, helping users **understand concepts rather than just getting answers**.
 
----
-
-## **🚀 Final Thoughts**
-By combining **LaTeX processing, symbolic computation, FAISS-based retrieval, and structured explanations**, I’ve built a **powerful math-focused AI system**. It can:
-✔ Retrieve and process **math-specific documents and theorems**.  
-✔ Provide **accurate, step-by-step explanations**.  
-✔ Display **math queries and solutions in proper LaTeX formatting**.  
-✔ Handle **complex mathematical reasoning beyond just text search**.  
-
-This makes it an **ideal system for students, researchers, and anyone needing structured math assistance**. 🚀  
-
-Would you like me to refine or add anything? 😊
