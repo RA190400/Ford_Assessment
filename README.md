@@ -279,23 +279,7 @@ curl -X 'GET' 'http://127.0.0.1:8000/api/models'
 - Responses are **formatted in LaTeX** for proper mathematical notation.
 - The system **converts LaTeX into a readable format** for Streamlit and API responses.
 
-### **📌 Example: Integral Query in LaTeX**
-#### **Query:**
-```json
-{
-    "question": "Evaluate the integral $I = \\int (2x^3 + 5x) dx$."
-}
-```
-#### **Response:**
-```json
-{
-    "answer": "1. Identify: This is an integral problem.\n
-               2. Apply integration: \\int (2x^3 + 5x) dx\n
-               3. Compute: (2/4)x^4 + (5/2)x^2 + C\n
-               4. Conclusion: The integral evaluates to $$ \\frac{1}{2}x^4 + \\frac{5}{2}x^2 + C $$"
-}
-```
-💡 **Output uses `$$...$$` for block LaTeX formatting** so that it displays correctly in UI tools like Streamlit.
+
 
 ---
 
