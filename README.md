@@ -9,17 +9,15 @@ This guide explains how to **install, set up, and configure** my **math-aware AI
 Before running the system, make sure you have **Python 3.9+** installed. Then, install all required dependencies using:
 
 ```bash
-pip install fastapi uvicorn ollama faiss-cpu torch transformers spacy sentence-transformers pymupdf numpy
-```
+pip install fastapi uvicorn \
+    ollama faiss-cpu torch \
+    sentence-transformers transformers \
+    spacy pymupdf numpy sympy \
+    streamlit llama-index llama-index-llms-ollama \
+    llama-index-vector-stores-faiss faiss-cpu llama-index-embeddings-huggingface
 
-This installs:
-- **FastAPI & Uvicorn** → For running the API server.
-- **Ollama** → For LLM-based query processing.
-- **FAISS** → For fast, math-aware semantic search.
-- **Torch & Sentence Transformers** → For embeddings and AI models.
-- **SymPy** → For symbolic math processing.
-- **spaCy** → For theorem detection.
-- **PyMuPDF (`pymupdf`)** → For extracting text from PDFs.
+```
+python -m spacy download en_core_web_sm
 
 ---
 
