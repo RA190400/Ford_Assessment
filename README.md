@@ -163,12 +163,6 @@ Since my system requires an **OpenAI API Key** for some functions, you should st
 export OPENAI_API_KEY="your-openai-api-key"
 ```
 
-To make it permanent, add it to your **`.bashrc`** or **`.zshrc`**:
-```bash
-echo 'export OPENAI_API_KEY="your-openai-api-key"' >> ~/.bashrc
-source ~/.bashrc  # Apply changes
-```
-
 ---
 ## **Start the Streamlit Frontend**  
 Once the API is running, **launch the UI using Streamlit**.
