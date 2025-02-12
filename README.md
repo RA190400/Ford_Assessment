@@ -152,13 +152,30 @@ def format_latex_response(response_generator):
 ✅ I implemented **FAISS Approximate Nearest Neighbor (ANN) search** to improve **query relevance**.  
 ✅ I also integrated **Hybrid Query Processing**, combining **Symbolic Math Reasoning (via SymPy)** with **text-based retrieval (via FAISS & LlamaIndex)**.  
 
-**📌 How It Works:**  
-🔹 If the query is **mathematical** (e.g., differentiation, integration), it **computes the result directly** using SymPy.  
-🔹 If the query is **conceptual** (e.g., explaining a theorem), it **retrieves relevant documents** from FAISS.  
-🔹 If needed, **both approaches are combined**, ensuring the system **both computes and explains**.  
-
 **📌 Example Implementation in My Code:**
 ```python
+def create_index(documents):
+    """
+    Creates a FAISS-based index with mathematical expressions.
+    """
+    try:
+        formatted_documents = [Document(text=entry["text"]) for entry in documents]
+        for entry in documents:
+            for formula in entry["math"]:
+                formatted_documents.append(Document(text=str(formula)))
+            for theorem in entry["theorems"]:
+                formatted_documents.append(Document(text=theorem))
+        
+        faiss_index = faiss.IndexFlatL2(768)
+        vector_store = FaissVectorStore(faiss_index=faiss_index)
+        index = VectorStoreIndex.from_documents(formatted_documents, vector_store=vector_store)
+        
+        logs.log.info("[create_index] Index created successfully with math+theorem search.")
+        return index
+    except Exception as err:
+        logs.log.error(f"[create_index] Failed: {err}")
+        raise Exception(f"Index creation failed: {err}")
+
 def process_query(user_query):
     symbolic_results = solve_math_query(user_query)
     text_results = st.session_state["query_engine"].query(user_query)
