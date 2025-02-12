@@ -89,9 +89,6 @@ python3 -m spacy download en_core_web_sm
 ```
 
 ---
-Your **Ollama installation & setup guide** looks great! Here's a **refined version** to ensure clarity and completeness:
-
----
 
 # **📌 Install & Configure Ollama for Math Explanations**  
 Ollama is used to provide **structured, step-by-step math explanations** in this project. Follow these steps to install, configure, and test it.
