@@ -21,20 +21,71 @@ python3 -m spacy download en_core_web_sm
 ```
 
 ---
+Your **Ollama installation & setup guide** looks great! Here's a **refined version** to ensure clarity and completeness:
 
-## **Install & Configure Ollama**
-Ollama is used for **step-by-step math explanations**. To install it:
+---
 
- Install **Ollama** (if not already installed):  
+# **📌 Install & Configure Ollama for Math Explanations**  
+Ollama is used to provide **structured, step-by-step math explanations** in this project. Follow these steps to install, configure, and test it.
+
+---
+
+## **1️⃣ Install Ollama on macOS**
+If you're on **macOS**, install Ollama using **Homebrew**:
 ```bash
-curl -fsSL https://ollama.com/install.sh | sh
+brew install ollama
+```
+If you **don’t have Homebrew**, install it first:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+Then retry:
+```bash
+brew install ollama
 ```
 
- **Pull the Required Math Model:**  
-I use **`qwen2-math:latest`** as the primary model:
+> **🔹 Linux Users:** Run:  
+> ```bash
+> curl -fsSL https://ollama.com/install.sh | sh
+> ```
+
+---
+
+## **2️⃣ Verify Installation**
+After installation, check if Ollama is correctly installed:
+```bash
+ollama --version
+```
+This should return the installed version.
+
+---
+
+## **3️⃣ Start the Ollama Server**
+Before using Ollama in the project, **start the server**:
+```bash
+ollama serve
+```
+This ensures that the API is running locally.
+
+---
+
+## **4️⃣ Pull the Required Math Model**
+For **math-specific reasoning**, we use **`qwen2-math:latest`**.  
+Run the following command to **download the model**:
 ```bash
 ollama pull qwen2-math:latest
 ```
+This will ensure the model is available when making API requests.
+
+---
+
+## **5️⃣ Test with a Simple Query**
+Once the model is installed, test Ollama by running:
+```bash
+ollama run qwen2-math "What is the derivative of x^2?"
+```
+If you get a valid response, the setup is complete! ✅  
+
 ---
 
 ## **Set Up Environment Variables**
