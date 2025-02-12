@@ -63,7 +63,7 @@ streamlit run main.py
 
 ---
 
-## **📌 Math-Focused Enhancements**  
+### **📌 Math-Focused Enhancements**  
 
 I've built a **math-aware question-answering system** that integrates **LaTeX processing, FAISS-based retrieval, symbolic computation, and structured step-by-step solutions**. Here's how I implemented each enhancement:
 
@@ -77,10 +77,27 @@ I've built a **math-aware question-answering system** that integrates **LaTeX pr
 
 **📌 Example Implementation in My Code:**
 ```python
-def extract_math_expressions(text):
-    math_expressions = re.findall(r'\$(.*?)\$', text)
-    sympy_expressions = [sympy.sympify(expr) for expr in math_expressions if expr]
-    return sympy_expressions
+ef extract_math_expressions(text):
+    """
+    Extracts LaTeX-style math expressions and detects named theorems.
+    """
+    try:
+        math_expressions = re.findall(r'\$(.*?)\$', text)
+        sympy_expressions = []
+        for expr in math_expressions:
+            try:
+                sympy_expressions.append(sympy.sympify(expr))
+            except SympifyError:
+                logs.log.warning(f"Skipping invalid math expression: {expr}")
+        
+        # Theorem detection
+        doc = nlp(text)
+        named_theorems = [ent.text for ent in doc.ents if ent.label_ in ["LAW", "EVENT"]]
+        
+        return sympy_expressions, named_theorems
+    except Exception as err:
+        logs.log.error(f"[extract_math_expressions] Error: {err}")
+        return [], []
 ```
 
 ---
@@ -111,26 +128,48 @@ def solve_math_query(query):
 **📌 Example Implementation in My Code:**
 ```python
 def format_latex_response(response_generator):
-    response_text = "".join(response_generator)
-    response_text = response_text.replace("\\(", "$").replace("\\)", "$")
-    response_text = response_text.replace("\\[", "$$").replace("\\]", "$$")
+    response_text = "".join(response_generator)  # Convert generator to string
+
+    # Convert LaTeX delimiters to Streamlit-compatible formatting
+    response_text = response_text.replace("\\(", "$").replace("\\)", "$")  # Inline math
+    response_text = response_text.replace("\\[", "$$").replace("\\]", "$$")  # Block math
+
+    # Handle environments like equation, align, gather, etc.
+    response_text = re.sub(r'\\begin{equation}(.*?)\\end{equation}', r'$$\1$$', response_text, flags=re.DOTALL)
+    response_text = re.sub(r'\\begin{align}(.*?)\\end{align}', r'$$\1$$', response_text, flags=re.DOTALL)
+    response_text = re.sub(r'\\begin{alignat}(.*?)\\end{alignat}', r'$$\1$$', response_text, flags=re.DOTALL)
+    response_text = re.sub(r'\\begin{gather}(.*?)\\end{gather}', r'$$\1$$', response_text, flags=re.DOTALL)
+    response_text = re.sub(r'\\begin{CD}(.*?)\\end{CD}', r'$$\1$$', response_text, flags=re.DOTALL)
+
     return response_text
 ```
 **💡 Benefit:** This ensures that **math expressions are displayed properly**, making the system more useful for students and researchers.
 
 ---
 
-### **4️⃣ Semantic Search Optimization**  
+### **4️⃣ Semantic Search Optimization & Hybrid Query Processing**  
 ✅ I optimized **semantic search for math-related queries** by using **math-aware embeddings**.  
 ✅ I implemented **FAISS Approximate Nearest Neighbor (ANN) search** to improve **query relevance**.  
+✅ I also integrated **Hybrid Query Processing**, combining **Symbolic Math Reasoning (via SymPy)** with **text-based retrieval (via FAISS & LlamaIndex)**.  
+
+**📌 How It Works:**  
+🔹 If the query is **mathematical** (e.g., differentiation, integration), it **computes the result directly** using SymPy.  
+🔹 If the query is **conceptual** (e.g., explaining a theorem), it **retrieves relevant documents** from FAISS.  
+🔹 If needed, **both approaches are combined**, ensuring the system **both computes and explains**.  
 
 **📌 Example Implementation in My Code:**
 ```python
-faiss_index = faiss.IndexFlatL2(768)  # Optimized for 768-d embeddings
-vector_store = FaissVectorStore(faiss_index=faiss_index)
-index = VectorStoreIndex.from_documents(formatted_documents, vector_store=vector_store)
+def process_query(user_query):
+    symbolic_results = solve_math_query(user_query)
+    text_results = st.session_state["query_engine"].query(user_query)
+    
+    if symbolic_results:
+        return f"Symbolic Result: {symbolic_results}\n\nText-Based Search: {text_results}"
+    return text_results
 ```
-**💡 Benefit:** This ensures that my system **retrieves the most relevant mathematical content**, whether it’s a theorem, proof, or equation.
+**💡 Benefit:**  
+✅ Ensures **efficient mathematical computation** while still retrieving **contextual explanations**.  
+✅ Handles **both numerical and theoretical** math questions in a single framework.  
 
 ---
 
@@ -142,16 +181,32 @@ index = VectorStoreIndex.from_documents(formatted_documents, vector_store=vector
 **📌 Example Implementation in My Code:**
 ```python
 step_by_step_prompt = f"""
-You are a math tutor providing structured, step-by-step solutions. For the given query:
-1. Identify the problem type (e.g., derivative, integral, proof).
-2. Break it down logically with clear steps and justifications.
-3. Apply theorems/formulas where needed.
-4. Conclude with the final answer and verification if applicable.
+        You are a math tutor providing structured, step-by-step solutions and explanations. Given the following query:
+
+        1. Determine the Query Type:
+        - Identify whether the question requires **solving a problem** (e.g., derivative, integral, proof) 
+        or **explaining a concept** (e.g., theorem, definition, application).
+
+       2. Logical Breakdown:
+       - If solving a problem, provide **clear, step-by-step calculations** with justifications.
+      - If explaining a concept, provide a **structured explanation** with definitions, key properties, examples, 
+     and real-world applications.
+
+       3. Application of Theorems/Formulas:
+       - If solving a problem, apply the necessary **theorems, formulas, or identities**.
+       - If explaining a concept, reference relevant **mathematical principles** and their significance.
+
+        4. Final Answer & Summary:
+       - If solving a problem, present the **final result clearly**, with verification if necessary.
+        - If explaining a concept, provide a **concise summary** of key takeaways.
 
 Query: {prompt}
 """
 ```
-**💡 Benefit:** This makes my system **not just a search engine, but an actual math tutor**, helping users **understand concepts rather than just getting answers**.
+**💡 Benefit:**  
+✅ Ensures that **solutions are easy to follow**.  
+✅ Enhances **explanatory capabilities**, making the system more than just a calculator.
+
 ---
 
 # **📌 Usage Details for My Math API Endpoints**  
