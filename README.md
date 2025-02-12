@@ -237,7 +237,6 @@ This section explains **how to use my API endpoints**, including **sample reques
 |-------------|-----------|----------------|
 | `/api/upload-pdfs` | `POST` | Uploads **PDFs**, extracts text, and indexes them for retrieval. |
 | `/api/math-query` | `POST` | Processes **math queries**, retrieves relevant documents, and provides **step-by-step solutions**. |
-| `/api/models` | `GET` | Returns a list of **available Ollama models**. |
 
 ---
 ## **Start the FastAPI Server**
@@ -309,25 +308,6 @@ curl -X 'POST' 'http://127.0.0.1:8000/api/math-query' \
 
 ---
 
-## **API Endpoint: List Available Models (`/api/models`)**
-### **📌 What This Does**
-- Returns a list of **available Ollama models** that can be used for processing queries.
-
-### **📌 Sample Request**
-```bash
-curl -X 'GET' 'http://127.0.0.1:8000/api/models'
-```
-
-### **📌 Expected Response**
-```json
-{
-  "models": ["qwen2-math:latest", "mistral:latest", "llama3:8b"]
-}
-```
-💡 **This helps you verify which models are available before making queries.**
-
----
-
 ## **Handling LaTeX-Based Queries**
 ### **📌 How My API Supports LaTeX**
 - LaTeX expressions are **extracted from queries** before processing.
@@ -343,7 +323,6 @@ curl -X 'GET' 'http://127.0.0.1:8000/api/models'
 |------------|------------|------------|----------|
 | Upload PDFs | `/api/upload-pdfs` | `POST` | Extracts and indexes content from PDFs. |
 | Ask a Math Question | `/api/math-query` | `POST` | Retrieves documents and provides **step-by-step solutions** with LaTeX. |
-| List Available Models | `/api/models` | `GET` | Shows which **Ollama models** are available. |
 
 ---
 
