@@ -1,6 +1,74 @@
 # **📘 Installation & Setup Guide for My Math Query System**  
 
-This guide explains how to **install, set up, and configure** my **math-aware AI system** using **FastAPI, Ollama, FAISS, and LaTeX support**.  
+This guide explains how to **install, set up, and configure** my **math-aware AI system** using **FastAPI, Ollama, FAISS, and LaTeX support**.
+
+To clone the repository **`Ford_Assessment`** from GitHub to your local system, follow these steps:
+
+### **1️⃣ Open Terminal (Mac/Linux) or Command Prompt (Windows)**
+Make sure you have **Git installed**. You can check by running:
+
+```bash
+git --version
+```
+If Git is not installed, install it using:
+
+- **Mac**: `brew install git`
+- **Ubuntu/Linux**: `sudo apt install git`
+- **Windows**: Download and install from [git-scm.com](https://git-scm.com/)
+
+---
+
+### **2️⃣ Navigate to Your Desired Directory**
+Decide where you want to store the repository, then navigate to that location:
+
+```bash
+cd /path/to/your/directory
+```
+For example:
+```bash
+cd ~/Desktop
+```
+
+---
+
+### **3️⃣ Clone the Repository**
+Run the following command:
+
+```bash
+git clone https://github.com/RA190400/Ford_Assessment.git
+```
+
+---
+
+### **4️⃣ Navigate into the Repository**
+```bash
+cd Ford_Assessment
+```
+
+---
+
+### **5️⃣ Verify the Repository**
+Check if the files are cloned successfully:
+
+```bash
+ls   # Mac/Linux
+dir  # Windows
+```
+
+---
+
+### **6️⃣ Update & Pull Latest Changes (If Needed)**
+If the repository is already cloned and you want to update it:
+
+```bash
+git pull origin main
+```
+
+---
+
+✅ **Now you have the repository on your local machine!** 🚀  
+
+  
 
 ---
 
