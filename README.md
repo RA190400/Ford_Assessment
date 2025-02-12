@@ -260,8 +260,7 @@ def format_latex_response(response_generator):
 
 ---
 
-### **4️⃣ Semantic Search Optimization & Hybrid Query Processing**  
-✅ I optimized **semantic search for math-related queries** by using **math-aware embeddings**.  
+### **4️⃣ Semantic Search Optimization & Hybrid Query Processing**   
 ✅ I implemented **FAISS Approximate Nearest Neighbor (ANN) search** to improve **query relevance**.  
 ✅ I also integrated **Hybrid Query Processing**, combining **Symbolic Math Reasoning (via SymPy)** with **text-based retrieval (via FAISS & LlamaIndex)**.  
 
